@@ -112,6 +112,31 @@ public class RoomService {
     }
 
     @Transactional
+    public void inviteUser(Long roomId, Long targetUserId, User inviter) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+
+        if (!roomMemberRepository.existsByRoomIdAndUserId(roomId, inviter.getId())) {
+            throw new IllegalArgumentException("You are not a member");
+        }
+        if (roomBanRepository.existsByRoomIdAndUserId(roomId, targetUserId)) {
+            throw new IllegalArgumentException("User is banned");
+        }
+        if (roomMemberRepository.existsByRoomIdAndUserId(roomId, targetUserId)) {
+            throw new IllegalArgumentException("Already a member");
+        }
+
+        User target = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        RoomMember member = new RoomMember();
+        member.setRoom(room);
+        member.setUser(target);
+        member.setRole("MEMBER");
+        roomMemberRepository.save(member);
+    }
+
+    @Transactional
     public Room getOrCreateDirectRoom(User user1, User user2) {
         String roomName = "dm_" + Math.min(user1.getId(), user2.getId())
                           + "_" + Math.max(user1.getId(), user2.getId());

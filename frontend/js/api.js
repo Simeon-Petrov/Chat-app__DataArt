@@ -79,6 +79,7 @@ async function loadRooms() {
                 document.getElementById('chat-header').textContent = '# ' + room.name;
                 document.getElementById('input-area').style.display = 'block';
                 subscribeToRoom(room.id);
+                loadMembers(room.id);
                 loadMessages(room.id).then(messages => {
                     const container = document.getElementById('messages');
                     container.innerHTML = '';
@@ -142,12 +143,15 @@ async function loadMembers(roomId) {
             const div = document.createElement('div');
             div.className = 'member-item';
             div.innerHTML = `
-                <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px">
                     <div style="display:flex;align-items:center;gap:6px">
                         <span class="presence-dot offline" id="dot-${m.user.id}"></span>
                         <span>${m.user.username} ${m.role !== 'MEMBER' ? `<span style="font-size:10px;color:#7c83fd">(${m.role})</span>` : ''}</span>
                     </div>
-                    ${m.user.id !== currentUser.id ? `<button onclick="banMember(${roomId}, ${m.user.id})" style="background:#e74c3c;border:none;color:white;padding:2px 6px;border-radius:3px;cursor:pointer;font-size:11px">Ban</button>` : ''}
+                    <div style="display:flex;gap:4px">
+                        ${m.user.id !== currentUser.id ? `<button onclick="banMember(${roomId}, ${m.user.id})" style="background:#e74c3c;border:none;color:white;padding:2px 6px;border-radius:3px;cursor:pointer;font-size:11px">Ban</button>` : ''}
+                        <button onclick="showInviteUser(${roomId})" style="background:#7c83fd;border:none;color:white;padding:2px 6px;border-radius:3px;cursor:pointer;font-size:11px">Invite</button>
+                    </div>
                 </div>
             `;
             list.appendChild(div);
@@ -164,6 +168,28 @@ async function banMember(roomId, userId) {
         await apiCall('POST', `/rooms/${roomId}/ban/${userId}`);
         alert('User banned!');
         loadMembers(roomId);
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+}
+
+function showInviteUser(roomId) {
+    document.getElementById('modal-title').textContent = 'Invite to Room';
+    document.getElementById('modal-body').innerHTML = `
+        <input id="invite-username" placeholder="Enter username">
+        <button onclick="inviteUser(${roomId})">Invite</button>
+    `;
+    document.getElementById('modal').style.display = 'flex';
+}
+
+async function inviteUser(roomId) {
+    const username = document.getElementById('invite-username').value.trim();
+    if (!username) return;
+    try {
+        const user = await apiCall('GET', `/users/${username}`);
+        await apiCall('POST', `/rooms/${roomId}/invite/${user.id}`);
+        alert('User invited successfully!');
+        closeModal();
     } catch (e) {
         alert('Error: ' + e.message);
     }
@@ -407,7 +433,7 @@ async function joinAndOpen(roomId) {
 
 function showSessions() {
     document.getElementById('modal-title').textContent = 'Active Sessions';
-    document.getElementById('modal-body').innerHTML = `<div id="sessions-list">Loading...</div>`;
+    document.getElementById('modal-body').innerHTML = `<div id="sessions-list" style="max-height:300px;overflow-y:auto;padding-right:4px">Loading...</div>`;
     document.getElementById('modal').style.display = 'flex';
     loadSessions();
 }

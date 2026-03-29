@@ -74,4 +74,12 @@ public class RoomController {
         roomService.deleteRoom(roomId, getUser(userDetails));
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{roomId}/invite/{userId}")
+    public ResponseEntity<Void> inviteUser(@PathVariable Long roomId,
+                                           @PathVariable Long userId,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        roomService.inviteUser(roomId, userId, getUser(userDetails));
+        return ResponseEntity.ok().build();
+    }
 }
