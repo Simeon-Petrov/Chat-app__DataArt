@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="screen">
+        <div class="auth-box">
+            <h2>Chat App</h2>
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('login')">Login</button>
+                <button class="tab" onclick="showTab('register')">Register</button>
+            </div>
+            <div id="login-form">
+                <input type="email" id="login-email" placeholder="Email">
+                <input type="password" id="login-password" placeholder="Password">
+                <button onclick="login()">Sign In</button>
+            </div>
+            <div id="register-form" style="display:none">
+                <input type="text" id="reg-username" placeholder="Username">
+                <input type="email" id="reg-email" placeholder="Email">
+                <input type="password" id="reg-password" placeholder="Password">
+                <button onclick="register()">Sign Up</button>
+            </div>
+            <p id="auth-error" class="error"></p>
+        </div>
+    </div>
+
+    <!-- Main Screen -->
+    <div id="main-screen" class="screen" style="display:none">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <span id="current-username"></span>
+                <button onclick="showSessions()" class="btn-small" style="margin-right:4px">📋</button>
+                <button onclick="showChangePassword()" class="btn-small" style="margin-right:4px">⚙</button>
+                <button onclick="showDeleteAccount()" class="btn-small" style="margin-right:4px;background:#e74c3c">🗑</button>
+                <button onclick="logout()" class="btn-small">Logout</button>
+            </div>
+            <div class="sidebar-section">
+                <div class="section-title">
+                    Rooms
+                    <div>
+                        <button onclick="showRoomSearch()" class="btn-small" style="margin-right:4px">🔍</button>
+                        <button onclick="showCreateRoom()" class="btn-small">+</button>
+                    </div>
+                </div>
+                <div id="rooms-list"></div>
+            </div>
+            <div class="sidebar-section">
+                <div class="section-title">
+                    Friends
+                    <button onclick="showAddFriend()" class="btn-small">+</button>
+                </div>
+                <div id="friends-list"></div>
+            </div>
+        </div>
+
+        <div class="chat-area">
+            <div class="chat-header" id="chat-header">Select a room</div>
+            <div class="messages" id="messages"></div>
+            <div class="input-area" id="input-area" style="display:none">
+                <div id="reply-preview" style="display:none" class="reply-preview">
+                    <span id="reply-text"></span>
+                    <button onclick="cancelReply()">x</button>
+                </div>
+                <div class="input-row">
+                    <input type="file" id="file-input" style="display:none" onchange="uploadFile()">
+                    <button onclick="document.getElementById('file-input').click()" class="btn-attach">+</button>
+                    <textarea id="message-input" placeholder="Type a message..." onkeydown="handleKey(event)"></textarea>
+                    <button onclick="sendMessage()" class="btn-send">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="members-panel">
+            <div class="section-title">Members</div>
+            <div id="members-list"></div>
+        </div>
+    </div>
+</div>
+
+<div id="modal" class="modal" style="display:none">
+    <div class="modal-box">
+        <h3 id="modal-title"></h3>
+        <div id="modal-body"></div>
+        <button onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/websocket.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
